@@ -1,0 +1,41 @@
+<label>
+  欲しい改造のレアリティ（当たり確率）:
+  <select id="rarity">
+    <option value="0.05">SR (5% -> 1/6で欲しい改造)</option>
+    <option value="0.25">R (25% -> 1/7で欲しい改造)</option>
+    <option value="0.70">C (70% -> 1/16で欲しい改造)</option>
+  </select>
+</label>
+
+<label>
+  欲しい改造の最大Lv:
+  <input type="number" id="maxLevel" value="10" min="1" />
+</label>
+
+<label>
+  欲しい改造の目標合計レベル:
+  <input type="number" id="targetTotal" value="30" min="1" />
+</label>
+
+<label>
+  装備するアクセサリの数:
+  <select id="pickCount">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3" selected>3</option>
+  </select>
+</label>
+
+<fieldset>
+  <legend>モード選択:</legend>
+  <label><input type="radio" name="mode" value="normal" checked /> 通常</label>
+  <label
+    ><input type="radio" name="mode" value="ultra" /> 超高速(描画頻度低)</label
+  >
+  <label><input type="radio" name="mode" value="stat" /> 統計（1000回）</label>
+</fieldset>
+<br />
+
+<button id="startButton" onclick="startGacha()">改造ガチャを回す</button>
+
+<div class="result" id="output"></div>
