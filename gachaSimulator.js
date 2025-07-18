@@ -1,11 +1,10 @@
-
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function drawGroup(rarity, maxLevel, bigHitRates) {
+function drawGroup(rarity, maxLevel, bigHitRates, slotCount) {
   let group = [];
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < slotCount; i++) {
     const isHit = Math.random() < rarity;
     if (isHit) {
       const bigHitProb = bigHitRates[rarity] || 0;
@@ -18,7 +17,6 @@ function drawGroup(rarity, maxLevel, bigHitRates) {
   }
   return group;
 }
-
 
 const bigHitRates = {
   0.05: 1 / 6, // SR
@@ -52,42 +50,43 @@ function runBulkDraw() {
   const maxLevel = parseInt(document.getElementById("maxLevel").value);
   const targetTotal = parseInt(document.getElementById("targetTotal").value);
   const pickCount = parseInt(document.getElementById("pickCount").value);
+  const slotCount = parseInt(document.getElementById("slotCount").value); // アクセサリスロット数
   const output = document.getElementById("output");
 
   // ...existing code...
 
   const mode = document.querySelector('input[name="mode"]:checked').value;
   const BATCH_SIZE = mode === "ultra" ? 10_000_000 : 1000;
-  let top3Total = 0;
+  let topTotal = 0;
 
   for (let i = 0; i < BATCH_SIZE; i++) {
     state.rounds++;
 
-    let group = drawGroup(rarity, maxLevel, bigHitRates);
+    let group = drawGroup(rarity, maxLevel, bigHitRates, slotCount);
     const groupTotal = group.reduce((a, b) => a + b, 0);
     state.topGroups.push({ group, total: groupTotal });
     state.topGroups.sort((a, b) => b.total - a.total);
     if (state.topGroups.length > pickCount) {
       state.topGroups.length = pickCount;
     }
-    top3Total = state.topGroups.reduce((sum, g) => sum + g.total, 0);
-    if (top3Total >= targetTotal) break;
+    topTotal = state.topGroups.reduce((sum, g) => sum + g.total, 0);
+    if (topTotal >= targetTotal) break;
   }
 
-  const top3 = state.topGroups;
+  const topGroups = state.topGroups;
 
   output.innerHTML = `
-    ${top3Total >= targetTotal ? "<p><strong>終了！</strong></p>" : ""}
+    ${topTotal >= targetTotal ? "<p><strong>終了！</strong></p>" : ""}
     <p><strong>改造回数:</strong> ${state.rounds}</p>
-    <p><strong>スキルの合計点:</strong> ${top3Total}</p>
+    <p><strong>スキルの合計点:</strong> ${topTotal}</p>
     <ul>
-      ${top3
+      ${topGroups
         .map((g) => `<li>${g.group.join(", ")} → 合計 ${g.total}</li>`)
         .join("")}
     </ul>
   `;
 
-  if (top3Total >= targetTotal) {
+  if (topTotal >= targetTotal) {
     document.getElementById("startButton").disabled = false;
     state.running = false;
   } else {
@@ -100,7 +99,7 @@ function runStatistics() {
   const maxLevel = parseInt(document.getElementById("maxLevel").value);
   const targetTotal = parseInt(document.getElementById("targetTotal").value);
   const pickCount = parseInt(document.getElementById("pickCount").value);
-  // ...existing code...
+  const slotCount = parseInt(document.getElementById("slotCount").value);
 
   const TRIALS = 1000;
   const results = [];
@@ -134,16 +133,16 @@ function runStatistics() {
 
     while (true) {
       rounds++;
-    let group = drawGroup(rarity, maxLevel, bigHitRates);
-    const total = group.reduce((a, b) => a + b, 0);
-    topGroups.push({ group, total });
-    topGroups.sort((a, b) => b.total - a.total);
-    if (topGroups.length > pickCount) topGroups.length = pickCount;
-    const topTotal = topGroups.reduce((sum, g) => sum + g.total, 0);
-    if (topTotal >= targetTotal) {
-      results.push(rounds);
-      break;
-    }
+      let group = drawGroup(rarity, maxLevel, bigHitRates, slotCount);
+      const total = group.reduce((a, b) => a + b, 0);
+      topGroups.push({ group, total });
+      topGroups.sort((a, b) => b.total - a.total);
+      if (topGroups.length > pickCount) topGroups.length = pickCount;
+      const topTotal = topGroups.reduce((sum, g) => sum + g.total, 0);
+      if (topTotal >= targetTotal) {
+        results.push(rounds);
+        break;
+      }
     }
 
     // --- 途中経過表示 ---
