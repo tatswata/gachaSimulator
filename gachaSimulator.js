@@ -1,6 +1,30 @@
+
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+function drawGroup(rarity, maxLevel, bigHitRates) {
+  let group = [];
+  for (let i = 0; i < 3; i++) {
+    const isHit = Math.random() < rarity;
+    if (isHit) {
+      const bigHitProb = bigHitRates[rarity] || 0;
+      const isBigHit = Math.random() < bigHitProb;
+      const score = isBigHit ? getRandomInt(1, maxLevel) : 0;
+      group.push(score);
+    } else {
+      group.push(0);
+    }
+  }
+  return group;
+}
+
+
+const bigHitRates = {
+  0.05: 1 / 6, // SR
+  0.25: 1 / 7, // R
+  0.7: 1 / 16, // C
+};
 
 let state = {
   rounds: 0,
@@ -30,11 +54,7 @@ function runBulkDraw() {
   const pickCount = parseInt(document.getElementById("pickCount").value);
   const output = document.getElementById("output");
 
-  const bigHitRates = {
-    0.05: 1 / 6, // SR
-    0.25: 1 / 7, // R
-    0.7: 1 / 16, // C
-  };
+  // ...existing code...
 
   const mode = document.querySelector('input[name="mode"]:checked').value;
   const BATCH_SIZE = mode === "ultra" ? 10_000_000 : 1000;
@@ -43,29 +63,14 @@ function runBulkDraw() {
   for (let i = 0; i < BATCH_SIZE; i++) {
     state.rounds++;
 
-    let group = [];
-
-    for (let j = 0; j < 3; j++) {
-      const isHit = Math.random() < rarity;
-      if (isHit) {
-        const bigHitProb = bigHitRates[rarity] || 0;
-        const isBigHit = Math.random() < bigHitProb;
-        const score = isBigHit ? getRandomInt(1, maxLevel) : 0;
-        group.push(score);
-      } else {
-        group.push(0);
-      }
-    }
-
+    let group = drawGroup(rarity, maxLevel, bigHitRates);
     const groupTotal = group.reduce((a, b) => a + b, 0);
     state.topGroups.push({ group, total: groupTotal });
     state.topGroups.sort((a, b) => b.total - a.total);
     if (state.topGroups.length > pickCount) {
       state.topGroups.length = pickCount;
     }
-
     top3Total = state.topGroups.reduce((sum, g) => sum + g.total, 0);
-
     if (top3Total >= targetTotal) break;
   }
 
@@ -95,11 +100,7 @@ function runStatistics() {
   const maxLevel = parseInt(document.getElementById("maxLevel").value);
   const targetTotal = parseInt(document.getElementById("targetTotal").value);
   const pickCount = parseInt(document.getElementById("pickCount").value);
-  const bigHitRates = {
-    0.05: 1 / 6,
-    0.25: 1 / 7,
-    0.7: 1 / 16,
-  };
+  // ...existing code...
 
   const TRIALS = 1000;
   const results = [];
@@ -133,30 +134,16 @@ function runStatistics() {
 
     while (true) {
       rounds++;
-      let group = [];
-
-      for (let i = 0; i < 3; i++) {
-        const isHit = Math.random() < rarity;
-        if (isHit) {
-          const bigHitProb = bigHitRates[rarity] || 0;
-          const isBigHit = Math.random() < bigHitProb;
-          const score = isBigHit ? getRandomInt(1, maxLevel) : 0;
-          group.push(score);
-        } else {
-          group.push(0);
-        }
-      }
-
-      const total = group.reduce((a, b) => a + b, 0);
-      topGroups.push({ group, total });
-      topGroups.sort((a, b) => b.total - a.total);
-      if (topGroups.length > pickCount) topGroups.length = pickCount;
-
-      const topTotal = topGroups.reduce((sum, g) => sum + g.total, 0);
-      if (topTotal >= targetTotal) {
-        results.push(rounds);
-        break;
-      }
+    let group = drawGroup(rarity, maxLevel, bigHitRates);
+    const total = group.reduce((a, b) => a + b, 0);
+    topGroups.push({ group, total });
+    topGroups.sort((a, b) => b.total - a.total);
+    if (topGroups.length > pickCount) topGroups.length = pickCount;
+    const topTotal = topGroups.reduce((sum, g) => sum + g.total, 0);
+    if (topTotal >= targetTotal) {
+      results.push(rounds);
+      break;
+    }
     }
 
     // --- 途中経過表示 ---
