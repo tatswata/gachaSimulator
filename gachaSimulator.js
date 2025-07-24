@@ -19,9 +19,9 @@ function drawGroup(rarity, maxLevel, bigHitRates, slotCount) {
 }
 
 const bigHitRates = {
-  0.05: 1 / 6, // SR
+  0.05: 1 / 8, // SR
   0.25: 1 / 7, // R
-  0.7: 1 / 16, // C
+  0.7: 1 / 18, // C
 };
 
 let state = {
@@ -50,10 +50,8 @@ function runBulkDraw() {
   const maxLevel = parseInt(document.getElementById("maxLevel").value);
   const targetTotal = parseInt(document.getElementById("targetTotal").value);
   const pickCount = parseInt(document.getElementById("pickCount").value);
-  const slotCount = parseInt(document.getElementById("slotCount").value); // アクセサリスロット数
+  const slotCount = parseInt(document.getElementById("slotCount").value);
   const output = document.getElementById("output");
-
-  // ...existing code...
 
   const mode = document.querySelector('input[name="mode"]:checked').value;
   const BATCH_SIZE = mode === "ultra" ? 10_000_000 : 1000;
