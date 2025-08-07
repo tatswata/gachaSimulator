@@ -19,7 +19,7 @@ function drawGroup(rarity, maxLevel, bigHitRates, slotCount) {
 }
 
 const bigHitRates = {
-  0.05: 1 / 8, // SR
+  0.05: 1 / 9, // SR
   0.25: 1 / 7, // R
   0.7: 1 / 18, // C
 };
